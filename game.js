@@ -1,19 +1,34 @@
 const buttonColours = ["red", "blue", "green", "yellow"];
 const gamePattern = [];
-const userClickedPattern = [];
+let userClickedPattern = [];
+let level = 0;
+let started = false;
+
+$(document).keydown(function(){
+    if(!started){
+        $("#level-title").text(`Level ${level}`);
+        nextSequence();
+        started = true;
+    }
+});
+
+$(".btn").click(function(){
+    const userChosenColour = this.id;
+    userClickedPattern.push(userChosenColour);
+    playSound(userChosenColour);
+    animatePress(userChosenColour);
+    checkAnswer(userClickedPattern.length-1);
+})
 
 function nextSequence(){
+    userClickedPattern = [];
+    $("#level-title").text(`Level ${level}`);
+    level++;
     const randomNumber = Math.floor(Math.random() * 4);
     const randomChosenColour = buttonColours[randomNumber];
     gamePattern.push(randomChosenColour);
-    playSound(randomChosenColour);
     $(`#${randomChosenColour}`).fadeOut(100).fadeIn(100);
-    $(".btn").click(function(){
-        const userChosenColour = this.id;
-        playSound(userChosenColour);
-        animatePress(userChosenColour);
-        userClickedPattern.push(userChosenColour);
-    })
+    playSound(randomChosenColour);
 };
 
 function playSound(name){
@@ -28,4 +43,15 @@ function animatePress(currentColour){
     },100);
 }
 
-nextSequence();
+function checkAnswer(currentLevel){
+    if (userClickedPattern[currentLevel] == gamePattern[currentLevel]) {
+        if (userClickedPattern.length === gamePattern.length) {
+            setTimeout(function(){
+                nextSequence();
+            }, 1000);
+            console.log("success");
+        }
+    }else{
+        console.log("wrong");
+    }
+}
